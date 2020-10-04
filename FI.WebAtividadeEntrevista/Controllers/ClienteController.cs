@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using FI.AtividadeEntrevista.DML;
+using WebAtividadeEntrevista.Util;
 
 namespace WebAtividadeEntrevista.Controllers
 {
@@ -36,11 +37,22 @@ namespace WebAtividadeEntrevista.Controllers
                 Response.StatusCode = 400;
                 return Json(string.Join(Environment.NewLine, erros));
             }
+            
+            if (!Validacoes.ValidarCPF(model.CPF))
+            {
+                return Json("CPF não é válido");
+            }
+
+            model.CPF = model.CPF.Trim().Replace(".", "").Replace("-", "");
+
+            if (bo.VerificarExistencia(model.CPF))
+            {
+                return Json("Este CPF já foi cadastrado");
+            }
             else
             {
-                
                 model.Id = bo.Incluir(new Cliente()
-                {                    
+                {
                     CEP = model.CEP,
                     Cidade = model.Cidade,
                     Email = model.Email,
@@ -49,10 +61,11 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = model.Nacionalidade,
                     Nome = model.Nome,
                     Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
+                    Telefone = model.Telefone,
+                    CPF = model.CPF
                 });
 
-           
+
                 return Json("Cadastro efetuado com sucesso");
             }
         }
@@ -71,6 +84,18 @@ namespace WebAtividadeEntrevista.Controllers
                 Response.StatusCode = 400;
                 return Json(string.Join(Environment.NewLine, erros));
             }
+
+            if (!Validacoes.ValidarCPF(model.CPF))
+            {
+                return Json("CPF não é válido");
+            }
+
+            model.CPF = model.CPF.Trim().Replace(".", "").Replace("-", "");
+
+            if (!bo.VerificarExistencia(model.CPF))
+            {
+                return Json("Este CPF já foi cadastrado");
+            }
             else
             {
                 bo.Alterar(new Cliente()
@@ -84,9 +109,10 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = model.Nacionalidade,
                     Nome = model.Nome,
                     Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
+                    Telefone = model.Telefone,
+                    CPF = model.CPF.Trim().Replace(".", "").Replace("-", "")
                 });
-                               
+
                 return Json("Cadastro alterado com sucesso");
             }
         }
@@ -111,7 +137,8 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = cliente.Nacionalidade,
                     Nome = cliente.Nome,
                     Sobrenome = cliente.Sobrenome,
-                    Telefone = cliente.Telefone
+                    Telefone = cliente.Telefone,
+                    CPF = cliente.CPF
                 };
 
             
